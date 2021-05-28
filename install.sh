@@ -1,10 +1,10 @@
 #!/bin/bash
 
-encryption_passphrase="220298"
-root_password="2298"
-user_password="7200"
-hostname="arch"
-username="ghost"
+encryption_passphrase="arch"
+root_password="arch"
+user_password="arch"
+hostname="archlinux"
+username="arch"
 continent_city="Asia/Kolkata"
 swap_size="1" # same as ram if using hibernation, otherwise minimum of 8
 
