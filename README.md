@@ -8,7 +8,7 @@ My preferred way to install Arch Linux.
 * __LVM__ (Logical Volume Management) is a more flexible way to set up a hard drive, as it allows partitions to be dynamically resized.
 * __UEFI__ is the modern replacement for Legacy BIOS.
 
-If you are curious as to why I use Arch you can read __[Why Arch Linux](https://github.com/ghostr72/archgnome/blob/main/why-arch.md)
+If you are curious as to why I use Arch you can read [Why Arch Linux](https://github.com/ghostr72/archgnome/blob/main/why-arch.md)
 
 Note: Some of the package choices and tweaks are specific to my setup.
 
@@ -30,7 +30,7 @@ So...
 9. Reboot into Arch Linux
 
 
-#Working on post-scripts......
+## Working on post-scripts......
 
 
 Feel free to post your queries and issues.
