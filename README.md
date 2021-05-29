@@ -21,7 +21,7 @@ So...
 1. Download and boot into the latest [Arch Linux iso](https://www.archlinux.org/download/)
 2. Connect to the internet.
 4. Sync repos and install wget `pacman -Sy wget`
-5. `wget https://raw.githubusercontent.com/ghostr72/archg-base/main/install.sh`
+5. `wget https://raw.githubusercontent.com/ghostr72/arch-base/main/install.sh`
 6. Change the variables at the top of the file (lines 3 through 9)
    - continent_country must have the following format: Zone/SubZone . e.g. Europe/Berlin
    - run `timedatectl list-timezones` to see full list of zones and subzones
