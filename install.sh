@@ -89,16 +89,16 @@ echo "Setting hostname"
 echo $hostname >> /etc/hostname
 echo "127.0.0.1     localhost" >> /etc/hosts
 echo "::1           localhost" >> /etc/hosts
-echo "127.0.0.1     $hostname.localdomain   $hostname" >> /etc/hosts
+echo "127.0.1.1     $hostname.localdomain   $hostname" >> /etc/hosts
 
 echo "Setting root password"
 echo -en "$root_password\n$root_password" | passwd
 
 echo "Installing packages"
-pacman -S --noconfirm base-devel grub efibootmgr networkmanager wget git man-db man-pages diffutils network-manager-applet dialog wpa_supplicant os-prober linux-headers mtools xdg-utils xdg-user-dirs alsa-utils pulseaudio dosfstools e2fsprogs
+pacman -S --noconfirm base-devel grub efibootmgr networkmanager wget git man-db man-pages diffutils dialog wpa_supplicant linux-headers mtools xdg-utils xdg-user-dirs alsa-utils pulseaudio dosfstools
 
 echo "Configuring grub"
-grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=Arch
+grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=ArchLinux
 grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "Setting swappiness to 20"
