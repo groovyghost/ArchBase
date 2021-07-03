@@ -95,7 +95,7 @@ echo "Setting root password"
 echo -en "$root_password\n$root_password" | passwd
 
 echo "Installing packages"
-pacman -S --noconfirm base-devel grub efibootmgr networkmanager wget git man-db man-pages diffutils dialog wpa_supplicant linux-headers mtools xdg-utils xdg-user-dirs alsa-utils pulseaudio dosfstools
+pacman -S --noconfirm base-devel grub efibootmgr networkmanager wget git man-db man-pages diffutils dialog wpa_supplicant linux-headers mtools alsa-utils pulseaudio dosfstools
 
 echo "Configuring grub"
 grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=ArchLinux
