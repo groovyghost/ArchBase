@@ -117,15 +117,6 @@ echo "Enabling Wifi Daemon"
 systemctl enable iwd.service
 systemctl enable systemd-resolved.service
 
-touch /etc/iwd/main.conf
-tee -a /etc/iwd/main.conf << END
-[General]
-EnableNetworkConfiguration=true
-
-[Network]
-NameResolvingService=systemd
-END
-
 EOF
 
 umount -R /mnt
