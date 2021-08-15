@@ -73,9 +73,8 @@ genfstab -U /mnt >> /mnt/etc/fstab
 echo "Configuring new system"
 arch-chroot /mnt /bin/bash << EOF
 echo "Setting system clock"
-timedatectl set-ntp true
-timedatectl set-timezone $continent_city
-hwclock --systohc --localtime
+ln -sf /usr/share/zoneinfo/$continent_city /etc/localtime
+hwclock --systohc
 
 echo "Setting locales"
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
@@ -95,21 +94,11 @@ echo "Setting root password"
 echo -en "$root_password\n$root_password" | passwd
 
 echo "Installing packages"
-pacman -S --noconfirm base-devel grub efibootmgr networkmanager wget git man-db man-pages diffutils dialog wpa_supplicant linux-headers mtools alsa-utils pulseaudio dosfstools
+pacman -Sy --noconfirm iwd dhcpcd wpa_supplicant base-devel grub efibootmgr netctl wget git man-db man-pages diffutils linux-headers
 
 echo "Configuring grub"
 grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=ArchLinux
 grub-mkconfig -o /boot/grub/grub.cfg
-
-echo "Setting swappiness to 20"
-touch /etc/sysctl.d/swappiness.conf
-echo 'vm.swappiness=20' > /etc/sysctl.d/swappiness.conf
-
-echo "Enabling periodic TRIM"
-systemctl enable fstrim.timer
-
-echo "Enabling NetworkManager"
-systemctl enable NetworkManager
 
 echo "Creating new user"
 useradd -m -G wheel,video,audio $username
@@ -117,6 +106,26 @@ echo -en "$user_password\n$user_password" | passwd $username
 
 echo "Adding user as a sudoer"
 echo '%wheel ALL=(ALL) ALL' | EDITOR='tee -a' visudo
+
+echo "Enabling periodic TRIM"
+systemctl enable fstrim.timer
+
+echo "Enabling NetworkManager"
+systemctl enable dhcpcd
+
+echo "Enabling Wifi Daemon"
+systemctl enable iwd.service
+systemctl enable systemd-resolved.service
+
+touch /etc/iwd/main.conf
+tee -a /etc/iwd/main.conf << END
+[General]
+EnableNetworkConfiguration=true
+
+[Network]
+NameResolvingService=systemd
+END
+
 EOF
 
 umount -R /mnt
