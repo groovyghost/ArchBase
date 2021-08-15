@@ -4,22 +4,22 @@
 disk="/dev/sda"
 
 # Desired SWAP size
-swap_size="4"
+swap_size="8"
 
 # System timezone.
 continent_city="Asia/Kolkata"
 
 # Hostname of the installed machine.
-hostname="archlinux"
+hostname="Arch"
 
 # Root password
-root_password="arch"
+root_password="ro0t#72"
 
 # Main user to create (by default, added to wheel group).
-username="arch"
+username="ghost"
 
 # The main user's password
-user_password="arch"
+user_password="@dm!n72"
 
 # Set different microcode, kernel params and initramfs modules according to CPU vendor
 cpu_vendor=$(cat /proc/cpuinfo | grep vendor | uniq)
