@@ -42,7 +42,7 @@ echo "Wiping drive"
 sgdisk --zap-all ${disk}
 
 echo "Creating partition"
-sgdisk -n 1:0:+1000M ${disk} # partition 1 (BOOT), default start block, 512MB
+sgdisk -n 1:0:+512M ${disk} # partition 1 (BOOT), default start block, 512MB
 sgdisk -n 2:0:+"$swap_size"G ${disk} # partition 2(Swap), default start block, desired size
 sgdisk -n 3:0:0 ${disk} # partition 3 (Root), default start, remaining
 
@@ -65,7 +65,7 @@ mkswap ${disk}2
 swapon ${disk}2
 
 echo "Installing Arch Linux"
-pacstrap /mnt base linux linux-firmware vim $cpu_microcode
+pacstrap /mnt base base-devel linux linux-firmware $cpu_microcode
 
 echo "Generating fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -94,7 +94,7 @@ echo "Setting root password"
 echo -en "$root_password\n$root_password" | passwd
 
 echo "Installing packages"
-pacman -Sy --noconfirm iwd dhcpcd wpa_supplicant base-devel grub efibootmgr netctl wget git man-db man-pages diffutils linux-headers
+pacman -Sy --noconfirm grub efibootmgr dhcpcd networkmanger vim linux-headers
 
 echo "Configuring grub"
 grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=ArchLinux
@@ -111,11 +111,7 @@ echo "Enabling periodic TRIM"
 systemctl enable fstrim.timer
 
 echo "Enabling NetworkManager"
-systemctl enable dhcpcd
-
-echo "Enabling Wifi Daemon"
-systemctl enable iwd.service
-systemctl enable systemd-resolved.service
+systemctl enable NetworkManger dhcpcd
 
 EOF
 
