@@ -28,7 +28,7 @@ OR
 9. Reboot into Arch Linux
 
 
-## Working on post-scripts......
+## Post-Scripts 
 
-
-Feel free to post your queries and issues.
+For Awesome WM :
+https://github.com/ghostr72/dots
