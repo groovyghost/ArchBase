@@ -36,7 +36,7 @@ echo "Updating system clock"
 timedatectl set-ntp true
 
 echo "Syncing packages database"
-pacman -Sy --noconfirm
+pacman -Syyy --noconfirm
 
 echo "Wiping drive"
 sgdisk --zap-all ${disk}
