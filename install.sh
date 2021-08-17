@@ -94,7 +94,7 @@ echo "Setting root password"
 echo -en "$root_password\n$root_password" | passwd
 
 echo "Installing packages"
-pacman -Sy --noconfirm grub efibootmgr dhcpcd networkmanger vim linux-headers wget git
+pacman -Sy --noconfirm grub efibootmgr dhcpcd networkmanager vim linux-headers wget git
 
 echo "Configuring grub"
 grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=ArchLinux
@@ -111,7 +111,7 @@ echo "Enabling periodic TRIM"
 systemctl enable fstrim.timer
 
 echo "Enabling NetworkManager"
-systemctl enable NetworkManger dhcpcd
+systemctl enable NetworkManager dhcpcd
 
 EOF
 
