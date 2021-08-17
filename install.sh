@@ -1,26 +1,19 @@
 #!/bin/bash
 
 # Drive to install to.
-disk="/dev/sda"
-
+disk="/dev/sda" 
 # Desired SWAP size
 swap_size="8"
-
 # System timezone.
 continent_city="Asia/Kolkata"
-
 # Hostname of the installed machine.
 hostname="Arch"
-
 # Root password
 root_password="ro0t#72"
-
 # Main user to create (by default, added to wheel group).
 username="ghost"
-
 # The main user's password
 user_password="@dm!n72"
-
 # Set different microcode, kernel params and initramfs modules according to CPU vendor
 cpu_vendor=$(cat /proc/cpuinfo | grep vendor | uniq)
 cpu_microcode=""
@@ -34,6 +27,9 @@ fi
 
 echo "Updating system clock"
 timedatectl set-ntp true
+
+echo "Retrieving up-to-date ArchMirrors"
+reflector --latest 20 --sort rate --save /etc/pacman.d/mirrorlist
 
 echo "Syncing packages database"
 pacman -Syyy --noconfirm
