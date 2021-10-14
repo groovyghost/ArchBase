@@ -2,7 +2,7 @@
 As a Newbie Linux-User setting up an Arch system from scratch is usually a time-intensive process.So i set out in developing scripts which transforms a blank hard drive to a fully functional Arch system with all my files, applications, and preferences set, as efficiently and with the least inputs from the user as possible.
 Typically a complete install takes me between two and three hours.About and hour for the base install, and a couple hours for all the packages to download.This is why installing Arch Linux is a challenge in itself but at the same time, it is a learning opportunity for intermediate Linux users.
 
-If you are curious as to why I use Arch you can read [Why Arch Linux](https://github.com/groovyghost/ArchBase/main/why-arch.md)
+If you are curious as to why I use Arch you can read [Why Arch Linux](https://github.com/groovyghost/ArchBase/blob/main/why-arch.md)
 
 Note: Some of the package choices and tweaks are specific to my setup.
 
