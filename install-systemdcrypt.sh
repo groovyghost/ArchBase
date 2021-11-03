@@ -1,34 +1,42 @@
 #!/bin/bash
 
-encryption_passphrase="arch"
-root_password="arch"
-user_password="arch"
-hostname="archlinux"
-username="arch"
-continent_city="Asia/Kolkata"
-swap_size="1" # same as ram if using hibernation, otherwise minimum of 8
+# Set Timezone
+timezone=$(tzselect)
+test -n "$timezone"
+# Drive to install to.
+lsblk
+echo "Enter Disk to install: (example /dev/sda)"
+read disk
+# Hostname of the installed machine.
+echo "Enter Hostname: "
+read hostname
+# Main username to create (by default, added to wheel group).
+echo "Enter Username: "
+read username
+# The password for user and root
+echo "Enter User Password: "
+read password
+# The Encryption for disk
+echo "Enter User Passpharse for encryption: "
+read encryption_passphrase
+country=$(curl -4 ifconfig.co/country-iso)
 
 # Set different microcode, kernel params and initramfs modules according to CPU vendor
 cpu_vendor=$(cat /proc/cpuinfo | grep vendor | uniq)
 cpu_microcode=""
-kernel_options=""
-initramfs_modules=""
 if [[ $cpu_vendor =~ "AuthenticAMD" ]]
 then
  cpu_microcode="amd-ucode"
- initramfs_modules="amdgpu"
 elif [[ $cpu_vendor =~ "GenuineIntel" ]]
 then
  cpu_microcode="intel-ucode"
- kernel_options=" i915.fastboot=1 i915.enable_fbc=1 i915.enable_guc=2"
- initramfs_modules="intel_agp i915"
 fi
 
-echo "Updating system clock"
+echo "Finding best mirrors"
 timedatectl set-ntp true
-
-echo "Syncing packages database"
-pacman -Sy --noconfirm
+mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+reflector -a 48 -c $country -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
+pacman -Syyy --noconfirm
 
 echo "Wiping drive"
 sgdisk --zap-all /dev/sda
@@ -49,7 +57,6 @@ echo "Creating volume volume"
 vgcreate vg0 /dev/mapper/cryptlvm
 
 echo "Creating logical volumes"
-lvcreate -L +"$swap_size"GB vg0 -n swap
 lvcreate -l +100%FREE vg0 -n root
 
 echo "Setting up / partition"
@@ -61,10 +68,6 @@ yes | mkfs.fat -F32 /dev/sda1
 mkdir /mnt/boot
 mount /dev/sda1 /mnt/boot
 
-echo "Setting up swap"
-yes | mkswap /dev/vg0/swap
-swapon /dev/vg0/swap
-
 echo "Installing Arch Linux"
 yes '' | pacstrap /mnt base base-devel efibootmgr linux linux-headers linux-lts linux-lts-headers linux-firmware lvm2 device-mapper dosfstools e2fsprogs $cpu_microcode cryptsetup networkmanager wget man-db man-pages nano vim diffutils lm_sensors
 
@@ -75,33 +78,26 @@ echo "Configuring new system"
 arch-chroot /mnt /bin/bash << EOF
 echo "Setting system clock"
 timedatectl set-ntp true
-timedatectl set-timezone $continent_city
+ln -sf /usr/share/zoneinfo/$timezone /etc/localtime
 hwclock --systohc --localtime
-
-echo "Setting locales"
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 locale-gen
-
-echo "Adding persistent keymap"
 echo "KEYMAP=us" > /etc/vconsole.conf
-
-echo "Setting hostname"
 echo $hostname > /etc/hostname
+echo -en "$password\n$password" | passwd
 
-echo "Setting root password"
-echo -en "$root_password\n$root_password" | passwd
-
-echo "Creating new user"
+# Creating new user
 useradd -m -G wheel,video -s /bin/bash $username
-echo -en "$user_password\n$user_password" | passwd $username
+echo -en "$password\n$password" | passwd $username
+echo '%wheel ALL=(ALL) ALL' | EDITOR='tee -a' visudo
 
-echo "Generating initramfs"
+# Generating initramfs
 sed -i 's/^HOOKS.*/HOOKS=(base systemd autodetect keyboard sd-vconsole modconf block sd-encrypt sd-lvm2 filesystems fsck)/' /etc/mkinitcpio.conf
 sed -i 's/^MODULES.*/MODULES=(ext4 $initramfs_modules)/' /etc/mkinitcpio.conf
 mkinitcpio -P
 
-echo "Setting up systemd-boot"
+# Setting up systemd-boot
 bootctl --path=/boot install
 
 mkdir -p /boot/loader/
@@ -119,7 +115,7 @@ title Arch Linux
 linux /vmlinuz-linux
 initrd /$cpu_microcode.img
 initrd /initramfs-linux.img
-options rd.luks.name=$(blkid -s UUID -o value /dev/sda2)=cryptlvm root=/dev/vg0/root resume=/dev/vg0/swap rd.luks.options=discard$kernel_options nmi_watchdog=0 quiet rw
+options rd.luks.name=$(blkid -s UUID -o value /dev/sda2)=cryptlvm root=/dev/vg0/root rd.luks.options=discard$kernel_options nmi_watchdog=0 quiet rw
 END
 
 touch /boot/loader/entries/arch-lts.conf
@@ -128,10 +124,10 @@ title Arch Linux LTS
 linux /vmlinuz-linux-lts
 initrd /$cpu_microcode.img
 initrd /initramfs-linux-lts.img
-options rd.luks.name=$(blkid -s UUID -o value /dev/sda2)=cryptlvm root=/dev/vg0/root resume=/dev/vg0/swap rd.luks.options=discard$kernel_options nmi_watchdog=0 quiet rw
+options rd.luks.name=$(blkid -s UUID -o value /dev/sda2)=cryptlvm root=/dev/vg0/root rd.luks.options=discard$kernel_options nmi_watchdog=0 quiet rw
 END
 
-echo "Setting up Pacman hook for automatic systemd-boot updates"
+# Setting up Pacman hook for automatic systemd-boot updates
 mkdir -p /etc/pacman.d/hooks/
 touch /etc/pacman.d/hooks/systemd-boot.hook
 tee -a /etc/pacman.d/hooks/systemd-boot.hook << END
@@ -146,21 +142,13 @@ When = PostTransaction
 Exec = /usr/bin/bootctl update
 END
 
-echo "Setting swappiness to 20"
-touch /etc/sysctl.d/99-swappiness.conf
-echo 'vm.swappiness=20' > /etc/sysctl.d/99-swappiness.conf
-
-echo "Enabling periodic TRIM"
+# Enabling Services
 systemctl enable fstrim.timer
-
-echo "Enabling NetworkManager"
 systemctl enable NetworkManager
 
-echo "Adding user as a sudoer"
-echo '%wheel ALL=(ALL) ALL' | EDITOR='tee -a' visudo
+
 EOF
 
 umount -R /mnt
-swapoff -a
 
 echo "Arch Linux is ready. You can reboot now!"
