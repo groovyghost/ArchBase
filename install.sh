@@ -16,7 +16,6 @@ read username
 # The password for user and root
 echo "Enter User Password: "
 read password
-country=$(curl -4 ifconfig.co/country-iso)
 
 # Set different microcode, kernel params and initramfs modules according to CPU vendor
 cpu_vendor=$(cat /proc/cpuinfo | grep vendor | uniq)
@@ -30,9 +29,11 @@ then
 fi
 
 echo "Finding best mirrors"
-timedatectl set-ntp true
+country=$(curl -4 ifconfig.co/country-iso)
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 reflector -a 48 -c $country -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
+
+timedatectl set-ntp true
 pacman -Syyy --noconfirm
 
 # Prepare partitions
