@@ -17,7 +17,7 @@ read username
 echo "Enter User Password: "
 read password
 # The Encryption for disk
-echo "Enter User Passpharse for encryption: "
+echo "Enter Passpharse for encryption: "
 read encryption_passphrase
 country=$(curl -4 ifconfig.co/country-iso)
 
