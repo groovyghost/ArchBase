@@ -14,14 +14,20 @@ fi
 #or all the packages installed "as explicitly", change their installation reason to "as dependency":
 pacman -D --asdeps $(pacman -Qqe)
 #change the installation reason to "as explicitly" of only the essential packages, those you do not want to remove
-pacman -D --asexplicit base base-devel linux linux-firmware $cpu_microcode
+pacman -D --asexplicit base linux linux-firmware $cpu_microcode
 
-#Installing base system
-pacman -Sy --noconfirm grub efibootmgr dhcpcd networkmanager vim linux-headers wget git
+#Remove all pacckages except explicit packages
+pacman -Qtydq | pacman -Rns -
+
+#Installing base packages
+pacman -Sy --noconfirm grub efibootmgr dhcpcd networkmanager vim linux-headers wget git base-devel
 
 #Grub config
 grub-install --target=x86_64-efi --efi-directory=/boot/ --bootloader-id=ArchLinux
 grub-mkconfig -o /boot/grub/grub.cfg
+
+#Adding wheel to sudo
+echo '%wheel ALL=(ALL) ALL' | EDITOR='tee -a' visudo
 
 #Enabling services
 systemctl enable fstrim.timer
